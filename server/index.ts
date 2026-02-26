@@ -281,7 +281,8 @@ async function startServer() {
 
     // 如果不是图片文件，直接返回原文件
     if (!isImageFile(originalFilename)) {
-      return res.json({ url: getImageUrl(`/uploads/${originalFilename}`, req) });
+      // 返回相对路径，让前端根据 VITE_API_BASE_URL 构建完整URL
+      return res.json({ url: `/uploads/${originalFilename}` });
     }
 
     // 获取图片类型参数 (avatar, news, product, default)
@@ -309,11 +310,12 @@ async function startServer() {
         console.log(`Image kept original (compression not beneficial): ${originalFilename}`);
       }
 
-      res.json({ url: getImageUrl(`/uploads/${originalFilename}`, req) });
+      // 返回相对路径，让前端根据 VITE_API_BASE_URL 构建完整URL
+      res.json({ url: `/uploads/${originalFilename}` });
     } catch (error) {
       console.error('Image compression error:', error);
-      // 压缩失败也返回原图
-      res.json({ url: getImageUrl(`/uploads/${originalFilename}`, req) });
+      // 压缩失败也返回相对路径
+      res.json({ url: `/uploads/${originalFilename}` });
     }
   });
 
