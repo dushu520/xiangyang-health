@@ -14,7 +14,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { Pencil, Trash2, Plus, ArrowLeft, Upload, Star } from "lucide-react";
 import { toast } from "sonner";
-import { api, uploadApi } from "@/lib/api";
+import { api, uploadApi, getImageUrl } from "@/lib/api";
+import { useCachedData } from "@/hooks/useCachedData";
 
 interface Product {
     id: number;
@@ -35,27 +36,24 @@ interface Category {
 }
 
 export function SelectionList() {
-    const [products, setProducts] = useState<Product[]>([]);
-    const [loading, setLoading] = useState(true);
     const { token } = useAuth()!;
     const [, setLocation] = useLocation();
 
-    const fetchProducts = async () => {
-        try {
+    // 使用缓存 hook
+    const { data: products = [], loading, refetch } = useCachedData<Product[]>(
+        'products_list',
+        async () => {
             const res = await api.get("/products");
-            setProducts(res.data);
-        } catch { toast.error("加载产品失败"); }
-        finally { setLoading(false); }
-    };
-
-    useEffect(() => { fetchProducts(); }, []);
+            return res.data;
+        }
+    );
 
     const handleDelete = async (id: number) => {
         if (!confirm("确定删除?")) return;
         try {
             await api.delete(`/products/${id}`);
             toast.success("删除成功");
-            fetchProducts();
+            refetch();
         } catch { toast.error("删除失败"); }
     };
 
@@ -84,7 +82,7 @@ export function SelectionList() {
                         {products.map(item => (
                             <TableRow key={item.id}>
                                 <TableCell>
-                                    <img src={item.image || "https://via.placeholder.com/40"} alt={item.name} className="w-12 h-12 rounded object-cover border" />
+                                    <img src={getImageUrl(item.image) || "https://via.placeholder.com/40"} alt={item.name} className="w-12 h-12 rounded object-cover border" />
                                 </TableCell>
                                 <TableCell className="font-medium">{item.name}</TableCell>
                                 <TableCell>{item.category?.name || "未分类"}</TableCell>
@@ -210,7 +208,7 @@ export function SelectionEdit({ params }: { params?: { id?: string } }) {
                     <div className="space-y-2">
                         <Label>产品图片</Label>
                         <div className="flex items-center gap-4">
-                            {formData.image && <img src={formData.image} alt="Product" className="h-20 w-20 object-cover rounded border" />}
+                            {formData.image && <img src={getImageUrl(formData.image)} alt="Product" className="h-20 w-20 object-cover rounded border" />}
                             <div className="relative">
                                 <Input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleUploadImage} accept="image/*" />
                                 <Button type="button" variant="outline"><Upload className="w-4 h-4 mr-2" /> 上传图片</Button>

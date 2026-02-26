@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Pencil, Trash2, Plus, ArrowLeft, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { api, uploadApi, getImageUrl } from "@/lib/api";
+import { useCachedData } from "@/hooks/useCachedData";
 
 interface Expert {
     id: number;
@@ -34,25 +35,26 @@ interface Category {
 }
 
 export function ExpertList() {
-    const [experts, setExperts] = useState<Expert[]>([]);
-    const [loading, setLoading] = useState(true);
     const { token } = useAuth()!;
     const [, setLocation] = useLocation();
 
-    const fetchExperts = async () => {
-        try {
+    // 使用缓存 hook
+    const { data: experts = [], loading, refetch } = useCachedData<Expert[]>(
+        'experts_list',
+        async () => {
             const res = await api.get("/experts");
-            setExperts(res.data);
-        } catch { toast.error("加载专家失败"); }
-        finally { setLoading(false); }
-    };
-
-    useEffect(() => { fetchExperts(); }, []);
+            return res.data;
+        }
+    );
 
     const handleDelete = async (id: number) => {
         if (!confirm("确定删除?")) return;
         try {
             await api.delete(`/experts/${id}`);
+            toast.success("删除成功");
+            refetch();
+        } catch { toast.error("删除失败"); }
+    };
             toast.success("删除成功");
             fetchExperts();
         } catch { toast.error("删除失败"); }

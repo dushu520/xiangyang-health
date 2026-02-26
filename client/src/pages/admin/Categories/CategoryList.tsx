@@ -29,6 +29,7 @@ import { Label } from "@/components/ui/label";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
+import { useCachedData } from "@/hooks/useCachedData";
 
 interface Category {
     id: number;
@@ -38,26 +39,18 @@ interface Category {
 }
 
 export function CategoryList() {
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [loading, setLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [currentCategory, setCurrentCategory] = useState<Partial<Category>>({ type: "news" });
     const { token } = useAuth()!;
 
-    const fetchCategories = async () => {
-        try {
+    // 使用缓存 hook
+    const { data: categories = [], loading, refetch } = useCachedData<Category[]>(
+        'categories_list',
+        async () => {
             const res = await api.get("/categories");
-            setCategories(res.data);
-        } catch (error) {
-            toast.error("加载分类失败");
-        } finally {
-            setLoading(false);
+            return res.data;
         }
-    };
-
-    useEffect(() => {
-        fetchCategories();
-    }, []);
+    );
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -70,7 +63,7 @@ export function CategoryList() {
                 toast.success("创建成功");
             }
             setIsDialogOpen(false);
-            fetchCategories();
+            refetch();
             setCurrentCategory({ type: "news" });
         } catch (error) {
             toast.error("操作失败");
@@ -82,7 +75,7 @@ export function CategoryList() {
         try {
             await api.delete(`/categories/${id}`);
             toast.success("删除成功");
-            fetchCategories();
+            refetch();
         } catch (error) {
             toast.error("删除失败");
         }

@@ -19,6 +19,7 @@ import { Label } from "@/components/ui/label";
 import { Pencil, Trash2, Plus, ArrowLeft, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { api, uploadApi } from "@/lib/api";
+import { useCachedData } from "@/hooks/useCachedData";
 
 interface News {
     id: number;
@@ -39,25 +40,26 @@ interface Category {
 }
 
 export function NewsList() {
-    const [news, setNews] = useState<News[]>([]);
-    const [loading, setLoading] = useState(true);
     const { token } = useAuth()!;
     const [, setLocation] = useLocation();
 
-    const fetchNews = async () => {
-        try {
+    // 使用缓存 hook
+    const { data: news = [], loading, refetch } = useCachedData<News[]>(
+        'news_list',
+        async () => {
             const res = await api.get("/news");
-            setNews(res.data);
-        } catch { toast.error("加载新闻失败"); }
-        finally { setLoading(false); }
-    };
-
-    useEffect(() => { fetchNews(); }, []);
+            return res.data;
+        }
+    );
 
     const handleDelete = async (id: number) => {
         if (!confirm("确定删除?")) return;
         try {
             await api.delete(`/news/${id}`);
+            toast.success("删除成功");
+            refetch();
+        } catch { toast.error("删除失败"); }
+    };
             toast.success("删除成功");
             fetchNews();
         } catch { toast.error("删除失败"); }
