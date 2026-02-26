@@ -611,18 +611,24 @@ async function startServer() {
       etag: true,
       lastModified: true,
       setHeaders: (res, filePath) => {
-        // 只缓存带 hash 的文件（文件名包含点号和长字符串）
         const fileName = path.basename(filePath);
         if (fileName.includes('.') && fileName.length > 20) {
+          // 带 hash 的文件（JS, CSS）：长期缓存
           res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-        } else {
-          // HTML 文件不缓存
-          res.setHeader('Cache-Control', 'no-cache');
+        } else if (fileName.endsWith('.html')) {
+          // HTML 文件：短期缓存 5 分钟
+          res.setHeader('Cache-Control', 'public, max-age=300, must-revalidate');
         }
       }
     }));
+
+    // SPA fallback - 设置 HTML 缓存头
     app.get("*", (_req, res) => {
-      res.sendFile(path.join(staticPath, "index.html"));
+      res.sendFile(path.join(staticPath, "index.html"), {
+        headers: {
+          'Cache-Control': 'public, max-age=300, must-revalidate' // 5 分钟缓存
+        }
+      });
     });
   }
 
