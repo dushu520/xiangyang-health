@@ -3,13 +3,13 @@
  * 向阳优选 - 健康商品推荐
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { SimpleDivider } from '@/components/OrganicDivider';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Star, ExternalLink, X } from 'lucide-react';
+import { ArrowLeft, Star, ExternalLink } from 'lucide-react';
 import { api, getImageUrl } from '@/lib/api';
 import { toast } from "sonner";
 import { ImagePlaceholder } from "@/components/Placeholder";
@@ -37,9 +37,6 @@ export function SelectionPage() {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>(['全部']);
   const [selectedCategory, setSelectedCategory] = useState('全部');
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
-  const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
   // 使用 useCallback 包装 fetch 函数避免无限循环
   const fetchProducts = useCallback(async () => {
@@ -97,37 +94,13 @@ export function SelectionPage() {
     }
   };
 
-  // 检测是否为移动端
-  const isMobile = () => {
-    return window.innerWidth < 768;
-  };
-
-  // 处理查看详情点击
-  const handleViewDetails = (product: Product, event: React.MouseEvent<HTMLButtonElement>) => {
+  // 处理查看详情点击 - 直接跳转到商品链接
+  const handleViewDetails = (product: Product) => {
     if (!product.url) {
       toast.error('该商品暂无购买链接');
       return;
     }
-
-    if (isMobile()) {
-      // 移动端：直接跳转
-      window.open(product.url, '_blank');
-    } else {
-      // 桌面端：显示二维码下拉框（从按钮往上滑出，盖住按钮）
-      const button = event.currentTarget;
-      const rect = button.getBoundingClientRect();
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      setModalPosition({
-        top: rect.bottom + scrollTop, // 从按钮底部位置开始
-        left: rect.left + rect.width / 2 - 144 // 居中 (弹窗宽度 288px / 2)
-      });
-      setSelectedProduct(product);
-    }
-  };
-
-  // 关闭弹窗
-  const closeModal = () => {
-    setSelectedProduct(null);
+    window.open(product.url, '_blank');
   };
 
   return (
@@ -267,13 +240,12 @@ export function SelectionPage() {
                   {/* View Details Button */}
                   <Button
                     size="sm"
-                    ref={(el) => { buttonRefs.current[product.id] = el; }}
                     className={`w-full ${product.inStock && product.url
                         ? 'bg-green-600 hover:bg-green-700 text-white'
                         : 'bg-gray-300 text-gray-600 cursor-not-allowed'
                       }`}
                     disabled={!product.inStock || !product.url}
-                    onClick={(e) => handleViewDetails(product, e)}
+                    onClick={() => handleViewDetails(product)}
                   >
                     <ExternalLink className="w-4 h-4 mr-1" />
                     查看详情
@@ -284,80 +256,6 @@ export function SelectionPage() {
           </div>
         </div>
       </section>
-
-      {/* CTA Section */}
-      <section className="py-12 bg-gradient-to-r from-green-600 to-teal-600 text-white">
-        <div className="container text-center">
-          <h2 className="text-3xl font-bold mb-4">发现更多优质商品</h2>
-          <p className="text-lg text-green-100 mb-8 max-w-2xl mx-auto">
-            我们精选最优质的健康商品，让您的健康生活更加便捷
-          </p>
-          <Button
-            size="lg"
-            className="bg-white text-green-600 hover:bg-gray-100 font-semibold"
-          >
-            浏览全部商品
-          </Button>
-        </div>
-      </section>
-
-      {/* QR Code Dropdown (Desktop only) */}
-      {selectedProduct && (
-        <>
-          {/* Click outside to close */}
-          <div
-            className="fixed inset-0 z-40"
-            onClick={closeModal}
-          />
-
-          {/* Dropdown Panel - 从按钮往上滑出，盖住按钮 */}
-          <div
-            className="fixed z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-4 w-72 hidden md:block origin-bottom"
-            style={{
-              top: `${modalPosition.top}px`,
-              left: `${modalPosition.left}px`,
-              transform: 'translateY(-100%)',
-              animation: 'slideUpFromBottom 0.3s ease-out',
-            }}
-          >
-            {/* Close button */}
-            <button
-              onClick={closeModal}
-              className="absolute top-2 right-2 p-1 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <X className="w-4 h-4 text-gray-400" />
-            </button>
-
-            <h3 className="text-sm font-bold text-slate-900 mb-1 pr-5 line-clamp-1">
-              {selectedProduct.name}
-            </h3>
-
-            <p className="text-xs text-slate-500 mb-3">
-              扫码或点击访问
-            </p>
-
-            {/* QR Code */}
-            <div className="flex justify-center mb-3">
-              <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(selectedProduct.url || '')}`}
-                alt="QR Code"
-                className="w-32 h-32 border border-gray-200 rounded"
-              />
-            </div>
-
-            {/* Visit Button */}
-            <a
-              href={selectedProduct.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-700 text-white text-center py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              <ExternalLink className="w-4 h-4" />
-              访问购买链接
-            </a>
-          </div>
-        </>
-      )}
 
       <Footer />
     </div>
