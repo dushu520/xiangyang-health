@@ -60,10 +60,6 @@ export function NewsList() {
             refetch();
         } catch { toast.error("删除失败"); }
     };
-            toast.success("删除成功");
-            fetchNews();
-        } catch { toast.error("删除失败"); }
-    };
 
     return (
         <AdminLayout>

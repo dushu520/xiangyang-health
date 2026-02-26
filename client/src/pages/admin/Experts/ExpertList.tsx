@@ -55,10 +55,6 @@ export function ExpertList() {
             refetch();
         } catch { toast.error("删除失败"); }
     };
-            toast.success("删除成功");
-            fetchExperts();
-        } catch { toast.error("删除失败"); }
-    };
 
     return (
         <AdminLayout>
