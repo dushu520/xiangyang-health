@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useLocation } from "wouter";
 import RichTextEditor from '@/components/RichTextEditor';
 
@@ -43,13 +43,16 @@ export function NewsList() {
     const { token } = useAuth()!;
     const [, setLocation] = useLocation();
 
+    // 使用 useCallback 包装 fetchFn 避免无限循环
+    const fetchNews = useCallback(async () => {
+        const res = await api.get("/news");
+        return res.data;
+    }, []);
+
     // 使用缓存 hook
     const { data: news = [], loading, refetch } = useCachedData<News[]>(
         'news_list',
-        async () => {
-            const res = await api.get("/news");
-            return res.data;
-        }
+        fetchNews
     );
 
     const handleDelete = async (id: number) => {

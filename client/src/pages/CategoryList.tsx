@@ -3,7 +3,7 @@
  * 显示特定分类的所有文章
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -45,13 +45,16 @@ export function CategoryListPage({ category }: CategoryListProps) {
 
   const config = categoryConfig[category];
 
+  // 使用 useCallback 包装 fetch 函数避免无限循环
+  const fetchNews = useCallback(async () => {
+    const response = await api.get('/news');
+    return response.data;
+  }, []);
+
   // 使用缓存 hook 获取新闻数据
   const { data: newsData = [], loading } = useCachedData<any[]>(
     `category_${category}`,
-    async () => {
-      const response = await api.get('/news');
-      return response.data;
-    }
+    fetchNews
   );
 
   // 当新闻数据变化时更新文章列表

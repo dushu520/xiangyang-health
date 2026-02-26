@@ -4,7 +4,7 @@
  * Design Philosophy: 现代健康主义 - 温暖、清晰、有机流动
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -49,21 +49,26 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // 使用 useCallback 包装 fetch 函数避免无限循环
+  const fetchExperts = useCallback(async () => {
+    const res = await api.get('/experts');
+    return res.data;
+  }, []);
+
+  const fetchNews = useCallback(async () => {
+    const res = await api.get('/news');
+    return res.data;
+  }, []);
+
   // 分别缓存专家和新闻数据
   const { data: expertsData = [], loading: expertsLoading } = useCachedData<any[]>(
     'home_experts',
-    async () => {
-      const res = await api.get('/experts');
-      return res.data;
-    }
+    fetchExperts
   );
 
   const { data: newsData = [], loading: newsLoading, error: newsError } = useCachedData<any[]>(
     'home_news',
-    async () => {
-      const res = await api.get('/news');
-      return res.data;
-    }
+    fetchNews
   );
 
   // 当数据变化时更新状态

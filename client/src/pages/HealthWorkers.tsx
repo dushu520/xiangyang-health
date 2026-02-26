@@ -3,7 +3,7 @@
  * 健康工大人 - 专家介绍和说明
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -35,21 +35,26 @@ export function HealthWorkersPage() {
   const [selectedSpecialty, setSelectedSpecialty] = useState('全部');
   const [selectedExpert, setSelectedExpert] = useState<Expert | null>(null);
 
+  // 使用 useCallback 包装 fetch 函数避免无限循环
+  const fetchExperts = useCallback(async () => {
+    const res = await api.get('/experts');
+    return res.data;
+  }, []);
+
+  const fetchCategories = useCallback(async () => {
+    const res = await api.get('/categories?type=expert');
+    return res.data;
+  }, []);
+
   // 使用缓存 hook
   const { data: expertsRaw = [], loading: expertsLoading } = useCachedData<any[]>(
     'healthworkers_experts',
-    async () => {
-      const res = await api.get('/experts');
-      return res.data;
-    }
+    fetchExperts
   );
 
   const { data: categoriesRaw = [] } = useCachedData<any[]>(
     'healthworkers_categories',
-    async () => {
-      const res = await api.get('/categories?type=expert');
-      return res.data;
-    }
+    fetchCategories
   );
 
   // 当数据变化时更新状态

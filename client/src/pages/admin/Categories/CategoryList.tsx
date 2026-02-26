@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AdminLayout } from "../Layout";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -43,13 +43,16 @@ export function CategoryList() {
     const [currentCategory, setCurrentCategory] = useState<Partial<Category>>({ type: "news" });
     const { token } = useAuth()!;
 
+    // 使用 useCallback 包装 fetchFn 避免无限循环
+    const fetchCategories = useCallback(async () => {
+        const res = await api.get("/categories");
+        return res.data;
+    }, []);
+
     // 使用缓存 hook
     const { data: categories = [], loading, refetch } = useCachedData<Category[]>(
         'categories_list',
-        async () => {
-            const res = await api.get("/categories");
-            return res.data;
-        }
+        fetchCategories
     );
 
     const handleSubmit = async (e: React.FormEvent) => {

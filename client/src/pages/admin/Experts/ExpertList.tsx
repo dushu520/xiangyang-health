@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useLocation } from "wouter";
 import RichTextEditor from '@/components/RichTextEditor';
 import { AdminLayout } from "../Layout";
@@ -38,13 +38,16 @@ export function ExpertList() {
     const { token } = useAuth()!;
     const [, setLocation] = useLocation();
 
+    // 使用 useCallback 包装 fetchFn 避免无限循环
+    const fetchExperts = useCallback(async () => {
+        const res = await api.get("/experts");
+        return res.data;
+    }, []);
+
     // 使用缓存 hook
     const { data: experts = [], loading, refetch } = useCachedData<Expert[]>(
         'experts_list',
-        async () => {
-            const res = await api.get("/experts");
-            return res.data;
-        }
+        fetchExperts
     );
 
     const handleDelete = async (id: number) => {

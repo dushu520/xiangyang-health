@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useLocation } from "wouter";
 
 import { AdminLayout } from "../Layout";
@@ -39,13 +39,16 @@ export function SelectionList() {
     const { token } = useAuth()!;
     const [, setLocation] = useLocation();
 
+    // 使用 useCallback 包装 fetchFn 避免无限循环
+    const fetchProducts = useCallback(async () => {
+        const res = await api.get("/products");
+        return res.data;
+    }, []);
+
     // 使用缓存 hook
     const { data: products = [], loading, refetch } = useCachedData<Product[]>(
         'products_list',
-        async () => {
-            const res = await api.get("/products");
-            return res.data;
-        }
+        fetchProducts
     );
 
     const handleDelete = async (id: number) => {
