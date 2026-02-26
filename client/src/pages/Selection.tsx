@@ -113,12 +113,13 @@ export function SelectionPage() {
       // 移动端：直接跳转
       window.open(product.url, '_blank');
     } else {
-      // 桌面端：显示二维码弹窗
+      // 桌面端：显示二维码下拉框
       const button = event.currentTarget;
       const rect = button.getBoundingClientRect();
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
       setModalPosition({
-        top: rect.top - 280, // 在按钮上方显示
-        left: rect.left + rect.width / 2 - 150 // 居中
+        top: rect.top + scrollTop - 320, // 在按钮上方 320px（弹窗高度）
+        left: rect.left + rect.width / 2 - 144 // 居中 (弹窗宽度 288px / 2)
       });
       setSelectedProduct(product);
     }
@@ -300,44 +301,45 @@ export function SelectionPage() {
         </div>
       </section>
 
-      {/* QR Code Modal (Desktop only) */}
+      {/* QR Code Dropdown (Desktop only) */}
       {selectedProduct && (
         <>
-          {/* Backdrop */}
+          {/* Click outside to close */}
           <div
-            className="fixed inset-0 bg-black/40 z-50"
+            className="fixed inset-0 z-40"
             onClick={closeModal}
           />
 
-          {/* Modal */}
+          {/* Dropdown Panel - 从按钮上方滑出 */}
           <div
-            className="fixed z-50 bg-white rounded-xl shadow-2xl p-6 w-80 hidden md:block"
+            className="fixed z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-4 w-72 hidden md:block animate-slide-down origin-bottom"
             style={{
-              top: `${Math.max(20, modalPosition.top)}px`,
+              top: `${modalPosition.top}px`,
               left: `${modalPosition.left}px`,
             }}
           >
+            {/* Close button */}
             <button
               onClick={closeModal}
               className="absolute top-2 right-2 p-1 hover:bg-gray-100 rounded-full transition-colors"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-4 h-4 text-gray-400" />
             </button>
 
-            <h3 className="text-lg font-bold text-slate-900 mb-2 pr-6">
+            <h3 className="text-sm font-bold text-slate-900 mb-1 pr-5 line-clamp-1">
               {selectedProduct.name}
             </h3>
 
-            <p className="text-sm text-slate-500 mb-4">
-              扫码或点击下方按钮访问购买链接
+            <p className="text-xs text-slate-500 mb-3">
+              扫码或点击访问
             </p>
 
             {/* QR Code */}
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center mb-3">
               <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(selectedProduct.url)}`}
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(selectedProduct.url)}`}
                 alt="QR Code"
-                className="w-48 h-48 border-2 border-gray-200 rounded-lg"
+                className="w-32 h-32 border border-gray-200 rounded"
               />
             </div>
 
@@ -346,9 +348,10 @@ export function SelectionPage() {
               href={selectedProduct.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full bg-green-600 hover:bg-green-700 text-white text-center py-2.5 rounded-lg font-medium transition-colors"
+              className="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-700 text-white text-center py-2 rounded-lg text-sm font-medium transition-colors"
             >
-              直接访问购买链接
+              <ExternalLink className="w-4 h-4" />
+              访问购买链接
             </a>
           </div>
         </>
