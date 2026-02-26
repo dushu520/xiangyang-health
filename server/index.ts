@@ -174,8 +174,16 @@ async function startServer() {
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-  // Serve static files from the stable uploads directory
-  app.use("/uploads", express.static(uploadDir));
+  // Serve static files from the stable uploads directory with cache headers
+  app.use("/uploads", express.static(uploadDir, {
+    maxAge: '365d', // 缓存 1 年（图片文件名包含时间戳，不会变化）
+    etag: true,     // 启用 ETag 验证
+    lastModified: true,
+    setHeaders: (res, filePath) => {
+      // 设置强缓存头
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+  }));
 
   // Serve frontend static files in production
   const staticPath =
@@ -597,7 +605,22 @@ async function startServer() {
 
   // Frontend Routing (SPA)
   if (process.env.NODE_ENV === "production") {
-    app.use(express.static(staticPath));
+    // 缓存带 hash 的静态资源（CSS, JS）
+    app.use(express.static(staticPath, {
+      maxAge: '1y',
+      etag: true,
+      lastModified: true,
+      setHeaders: (res, filePath) => {
+        // 只缓存带 hash 的文件（文件名包含点号和长字符串）
+        const fileName = path.basename(filePath);
+        if (fileName.includes('.') && fileName.length > 20) {
+          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        } else {
+          // HTML 文件不缓存
+          res.setHeader('Cache-Control', 'no-cache');
+        }
+      }
+    }));
     app.get("*", (_req, res) => {
       res.sendFile(path.join(staticPath, "index.html"));
     });
