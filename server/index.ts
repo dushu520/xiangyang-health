@@ -176,11 +176,10 @@ async function startServer() {
 
   // Serve static files from the stable uploads directory with cache headers
   app.use("/uploads", express.static(uploadDir, {
-    maxAge: '365d', // 缓存 1 年（图片文件名包含时间戳，不会变化）
-    etag: true,     // 启用 ETag 验证
+    etag: true,
     lastModified: true,
-    setHeaders: (res, filePath) => {
-      // 设置强缓存头
+    setHeaders: (res) => {
+      // 设置强缓存头：1年，immutable
       res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
     }
   }));
