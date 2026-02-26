@@ -3,13 +3,13 @@
  * 向阳优选 - 健康商品推荐
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { SimpleDivider } from '@/components/OrganicDivider';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ShoppingCart, Heart, Star } from 'lucide-react';
+import { ArrowLeft, Star, ExternalLink, X } from 'lucide-react';
 import { api, getImageUrl } from '@/lib/api';
 import { toast } from "sonner";
 import { ImagePlaceholder } from "@/components/Placeholder";
@@ -37,8 +37,9 @@ export function SelectionPage() {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>(['全部']);
   const [selectedCategory, setSelectedCategory] = useState('全部');
-  const [wishlist, setWishlist] = useState<Set<string>>(new Set());
-  const [cart, setCart] = useState<Set<string>>(new Set());
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
+  const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
   // 使用 useCallback 包装 fetch 函数避免无限循环
   const fetchProducts = useCallback(async () => {
@@ -96,28 +97,36 @@ export function SelectionPage() {
     }
   };
 
-  const toggleWishlist = (productId: string) => {
-    setWishlist(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(productId)) {
-        newSet.delete(productId);
-      } else {
-        newSet.add(productId);
-      }
-      return newSet;
-    });
+  // 检测是否为移动端
+  const isMobile = () => {
+    return window.innerWidth < 768;
   };
 
-  const toggleCart = (productId: string) => {
-    setCart(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(productId)) {
-        newSet.delete(productId);
-      } else {
-        newSet.add(productId);
-      }
-      return newSet;
-    });
+  // 处理查看详情点击
+  const handleViewDetails = (product: Product, event: React.MouseEvent<HTMLButtonElement>) => {
+    if (!product.url) {
+      toast.error('该商品暂无购买链接');
+      return;
+    }
+
+    if (isMobile()) {
+      // 移动端：直接跳转
+      window.open(product.url, '_blank');
+    } else {
+      // 桌面端：显示二维码弹窗
+      const button = event.currentTarget;
+      const rect = button.getBoundingClientRect();
+      setModalPosition({
+        top: rect.top - 280, // 在按钮上方显示
+        left: rect.left + rect.width / 2 - 150 // 居中
+      });
+      setSelectedProduct(product);
+    }
+  };
+
+  // 关闭弹窗
+  const closeModal = () => {
+    setSelectedProduct(null);
   };
 
   return (
@@ -204,19 +213,6 @@ export function SelectionPage() {
                       <span className="text-white font-bold text-lg">缺货</span>
                     </div>
                   )}
-
-                  {/* Wishlist Button */}
-                  <button
-                    onClick={() => toggleWishlist(product.id)}
-                    className="absolute top-3 left-3 p-2 rounded-full bg-white/80 hover:bg-white transition-colors"
-                  >
-                    <Heart
-                      className={`w-5 h-5 ${wishlist.has(product.id)
-                          ? 'fill-red-600 text-red-600'
-                          : 'text-slate-600'
-                        }`}
-                    />
-                  </button>
                 </div>
 
                 {/* Product Info */}
@@ -267,18 +263,19 @@ export function SelectionPage() {
                     ))}
                   </div>
 
-                  {/* Add to Cart Button */}
+                  {/* View Details Button */}
                   <Button
                     size="sm"
-                    className={`w-full ${product.inStock
+                    ref={(el) => { buttonRefs.current[product.id] = el; }}
+                    className={`w-full ${product.inStock && product.url
                         ? 'bg-green-600 hover:bg-green-700 text-white'
                         : 'bg-gray-300 text-gray-600 cursor-not-allowed'
                       }`}
-                    disabled={!product.inStock}
-                    onClick={() => toggleCart(product.id)}
+                    disabled={!product.inStock || !product.url}
+                    onClick={(e) => handleViewDetails(product, e)}
                   >
-                    <ShoppingCart className="w-4 h-4 mr-1" />
-                    {cart.has(product.id) ? '已加入购物车' : '加入购物车'}
+                    <ExternalLink className="w-4 h-4 mr-1" />
+                    查看详情
                   </Button>
                 </div>
               </div>
@@ -302,6 +299,60 @@ export function SelectionPage() {
           </Button>
         </div>
       </section>
+
+      {/* QR Code Modal (Desktop only) */}
+      {selectedProduct && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/40 z-50"
+            onClick={closeModal}
+          />
+
+          {/* Modal */}
+          <div
+            className="fixed z-50 bg-white rounded-xl shadow-2xl p-6 w-80 hidden md:block"
+            style={{
+              top: `${Math.max(20, modalPosition.top)}px`,
+              left: `${modalPosition.left}px`,
+            }}
+          >
+            <button
+              onClick={closeModal}
+              className="absolute top-2 right-2 p-1 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-500" />
+            </button>
+
+            <h3 className="text-lg font-bold text-slate-900 mb-2 pr-6">
+              {selectedProduct.name}
+            </h3>
+
+            <p className="text-sm text-slate-500 mb-4">
+              扫码或点击下方按钮访问购买链接
+            </p>
+
+            {/* QR Code */}
+            <div className="flex justify-center mb-4">
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(selectedProduct.url)}`}
+                alt="QR Code"
+                className="w-48 h-48 border-2 border-gray-200 rounded-lg"
+              />
+            </div>
+
+            {/* Visit Button */}
+            <a
+              href={selectedProduct.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full bg-green-600 hover:bg-green-700 text-white text-center py-2.5 rounded-lg font-medium transition-colors"
+            >
+              直接访问购买链接
+            </a>
+          </div>
+        </>
+      )}
 
       <Footer />
     </div>
