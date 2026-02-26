@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
-import { api, uploadApi } from "@/lib/api";
+import { api, uploadApi, getImageUrl } from "@/lib/api";
 
 export function Settings() {
     const { user, token, updateUser } = useAuth()!;
@@ -120,7 +120,7 @@ export function Settings() {
                                 <div className="relative group">
                                     <div className="w-24 h-24 rounded-full bg-slate-100 overflow-hidden border">
                                         {avatar ? (
-                                            <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                            <img src={getImageUrl(avatar)} alt="Avatar" className="w-full h-full object-cover" />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-slate-300">
                                                 {(nickname || user?.username || "A").charAt(0).toUpperCase()}

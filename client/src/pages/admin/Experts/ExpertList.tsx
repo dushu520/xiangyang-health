@@ -14,7 +14,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Pencil, Trash2, Plus, ArrowLeft, Upload } from "lucide-react";
 import { toast } from "sonner";
-import { api, uploadApi } from "@/lib/api";
+import { api, uploadApi, getImageUrl } from "@/lib/api";
 
 interface Expert {
     id: number;
@@ -83,7 +83,7 @@ export function ExpertList() {
                         {experts.map(item => (
                             <TableRow key={item.id}>
                                 <TableCell>
-                                    <img src={item.avatar || "https://via.placeholder.com/40"} alt={item.name} className="w-10 h-10 rounded-full object-cover" />
+                                    <img src={getImageUrl(item.avatar) || "https://via.placeholder.com/40"} alt={item.name} className="w-10 h-10 rounded-full object-cover" />
                                 </TableCell>
                                 <TableCell className="font-medium">{item.name}</TableCell>
                                 <TableCell>{item.title}</TableCell>
@@ -222,7 +222,7 @@ export function ExpertEdit({ params }: { params?: { id?: string } }) {
                     <div className="space-y-2">
                         <Label>头像 (照片)</Label>
                         <div className="flex items-center gap-4">
-                            {formData.avatar && <img src={formData.avatar} alt="Avatar" className="h-20 w-20 object-cover rounded-full border" />}
+                            {formData.avatar && <img src={getImageUrl(formData.avatar)} alt="Avatar" className="h-20 w-20 object-cover rounded-full border" />}
                             <div className="relative">
                                 <Input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleUploadAvatar} accept="image/*" />
                                 <Button type="button" variant="outline"><Upload className="w-4 h-4 mr-2" /> 上传头像</Button>

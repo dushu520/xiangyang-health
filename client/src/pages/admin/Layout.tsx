@@ -1,5 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
+import { getImageUrl } from "@/lib/api";
 import {
     LayoutDashboard,
     Newspaper,
@@ -54,7 +55,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                     <div className="mb-4 px-4 flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-slate-700 overflow-hidden border border-slate-600">
                             {user?.avatar ? (
-                                <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                <img src={getImageUrl(user.avatar)} alt="Avatar" className="w-full h-full object-cover" />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-lg font-bold text-slate-500">
                                     {(user?.nickname || user?.username || "A").charAt(0).toUpperCase()}

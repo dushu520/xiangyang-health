@@ -145,7 +145,7 @@ export function HealthWorkersPage() {
                 <div className="flex-shrink-0">
                   <div className="w-24 h-24 rounded-full overflow-hidden bg-slate-100 border border-slate-100 group-hover:scale-105 transition-transform duration-300">
                     <img
-                      src={expert.avatar}
+                      src={getImageUrl(expert.avatar)}
                       alt={expert.name}
                       className="w-full h-full object-cover"
                     />
@@ -216,7 +216,7 @@ export function HealthWorkersPage() {
 
               <div className="p-8 pb-0 flex flex-col md:flex-row gap-6">
                 <img
-                  src={selectedExpert.avatar}
+                  src={getImageUrl(selectedExpert.avatar)}
                   alt={selectedExpert.name}
                   className="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-slate-50"
                 />
