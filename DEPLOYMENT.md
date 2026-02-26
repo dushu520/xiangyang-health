@@ -30,7 +30,7 @@ VITE_API_BASE_URL=https://your-backend-server.com
 3. 创建新站点，关联 Git 仓库
 4. 选择分支: `feature/frontend-backend-separation`
 5. 配置构建设置：
-   - **构建命令**: `pnpm vite build`
+   - **构建命令**: `pnpm run build`
    - **输出目录**: `dist/public`
    - **环境变量**: 添加 `VITE_API_BASE_URL`
 6. 部署完成后，腾讯云会提供访问域名
@@ -92,18 +92,26 @@ git pull origin feature/frontend-backend-separation
 # 2. 安装依赖
 pnpm install
 
-# 3. 构建后端
-pnpm server-build
+# 3. 构建（前端+后端）
+pnpm run build
 
 # 4. 迁移数据库 (如需要)
 npx prisma migrate deploy
 
 # 5. 启动服务 (使用 PM2)
-pm2 start dist/server/index.js --name xiangyang-api
+pm2 start dist/index.js --name xiangyang
 
 # 6. 配置开机自启
 pm2 startup
 pm2 save
+```
+
+**重启服务**:
+```bash
+# 拉取最新代码后
+git pull
+pnpm run build
+pm2 restart xiangyang
 ```
 
 ### 4. 防火墙配置

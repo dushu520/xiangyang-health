@@ -5,8 +5,18 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 // Append /api to the base URL since all backend routes start with /api
 const BASE_URL = API_BASE_URL ? `${API_BASE_URL}/api` : '/api';
 
+// Request timeout configuration
+const REQUEST_TIMEOUT = 10000; // 10 seconds
+
+// Retry configuration for failed requests
+const MAX_RETRIES = 2;
+const RETRY_DELAY = 1000; // 1 second
+
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export const api = axios.create({
   baseURL: BASE_URL,
+  timeout: REQUEST_TIMEOUT,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -21,22 +31,55 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor: unified error handling
+// Response interceptor: unified error handling with retry logic
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Handle 401 unauthorized
     if (error.response?.status === 401) {
       localStorage.removeItem('admin_token');
       localStorage.removeItem('admin_user');
       window.location.href = '/admin/login';
+      return Promise.reject(error);
     }
+
+    // Retry logic for network errors or timeouts
+    if (
+      (error.code === 'ECONNABORTED' || error.code === 'ERR_NETWORK' || !error.response) &&
+      !originalRequest._retry &&
+      (originalRequest._retryCount || 0) < MAX_RETRIES
+    ) {
+      originalRequest._retryCount = (originalRequest._retryCount || 0) + 1;
+
+      console.warn(
+        `API request failed (${originalRequest._retryCount}/${MAX_RETRIES}), retrying...`,
+        error.message
+      );
+
+      // Wait before retrying
+      await sleep(RETRY_DELAY * originalRequest._retryCount);
+
+      return api(originalRequest);
+    }
+
+    // Log error for debugging
+    if (error.code === 'ECONNABORTED') {
+      console.error('API request timeout:', error.config?.url);
+    } else if (error.code === 'ERR_NETWORK') {
+      console.error('API network error:', error.config?.url);
+    }
+
     return Promise.reject(error);
   }
 );
 
 // Helper for FormData uploads (don't set Content-Type header)
+// Note: Longer timeout for file uploads (30 seconds)
 export const uploadApi = axios.create({
   baseURL: BASE_URL,
+  timeout: 30000,
 });
 
 uploadApi.interceptors.request.use((config) => {
@@ -86,4 +129,46 @@ export function getImageUrl(path: string | null | undefined): string {
   }
 
   return path;
+}
+
+/**
+ * Parse API error and return user-friendly message
+ */
+export function getApiErrorMessage(error: any): string {
+  if (error.code === 'ECONNABORTED') {
+    return '请求超时，请检查网络连接或稍后重试';
+  }
+  if (error.code === 'ERR_NETWORK') {
+    return '网络连接失败，请检查网络或稍后重试';
+  }
+  if (error.response?.data?.error) {
+    return error.response.data.error;
+  }
+  if (error.response?.status === 404) {
+    return '请求的资源不存在';
+  }
+  if (error.response?.status === 500) {
+    return '服务器错误，请稍后重试';
+  }
+  return '加载失败，请稍后重试';
+}
+
+/**
+ * Safe API fetch with fallback data
+ * Returns fallback data if API fails
+ */
+export async function safeApiFetch<T>(
+  apiCall: () => Promise<{ data: T }>,
+  fallback: T,
+  onError?: (error: any) => void
+): Promise<T> {
+  try {
+    const response = await apiCall();
+    return response.data;
+  } catch (error) {
+    if (onError) {
+      onError(error);
+    }
+    return fallback;
+  }
 }

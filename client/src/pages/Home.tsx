@@ -12,8 +12,9 @@ import { UserCard } from "@/components/UserCard";
 import { ArticleCard } from "@/components/ArticleCard";
 import { OrganicDivider, SimpleDivider } from "@/components/OrganicDivider";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles } from "lucide-react";
-import { api, getImageUrl } from "@/lib/api";
+import { ArrowRight, Sparkles, AlertCircle } from "lucide-react";
+import { api, getImageUrl, getApiErrorMessage } from "@/lib/api";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 // Interfaces based on usage
 interface User {
@@ -45,6 +46,7 @@ export default function Home() {
   const [users, setUsers] = useState<User[]>([]);
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -87,9 +89,11 @@ export default function Home() {
           };
         });
         setArticles(mappedArticles);
+        setError(null);
 
-      } catch (error) {
-        console.error("Failed to load data:", error);
+      } catch (err: any) {
+        console.error("Failed to load data:", err);
+        setError(getApiErrorMessage(err));
       } finally {
         setLoading(false);
       }
@@ -258,7 +262,24 @@ export default function Home() {
 
           {loading ? (
             <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-400 mb-4"></div>
               <p className="text-gray-400">加载中...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12 px-4">
+              <Alert className="max-w-md mx-auto bg-slate-800/50 border-slate-700">
+                <AlertCircle className="h-5 w-5 text-orange-400" />
+                <AlertDescription className="text-gray-300">
+                  {error}
+                </AlertDescription>
+              </Alert>
+              <Button
+                onClick={() => window.location.reload()}
+                variant="outline"
+                className="mt-6 border-2 border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-white"
+              >
+                重新加载
+              </Button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
@@ -303,7 +324,23 @@ export default function Home() {
 
           {loading ? (
             <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-400 mb-4"></div>
               <p className="text-slate-600">加载中...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12 px-4">
+              <Alert className="max-w-md mx-auto bg-orange-50 border-orange-200">
+                <AlertCircle className="h-5 w-5 text-orange-600" />
+                <AlertDescription className="text-slate-700">
+                  {error}
+                </AlertDescription>
+              </Alert>
+              <Button
+                onClick={() => window.location.reload()}
+                className="mt-6 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-semibold shadow-lg"
+              >
+                重新加载
+              </Button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -346,7 +383,23 @@ export default function Home() {
 
           {loading ? (
             <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-400 mb-4"></div>
               <p className="text-slate-600">加载中...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12 px-4">
+              <Alert className="max-w-md mx-auto bg-orange-50 border-orange-200">
+                <AlertCircle className="h-5 w-5 text-orange-600" />
+                <AlertDescription className="text-slate-700">
+                  {error}
+                </AlertDescription>
+              </Alert>
+              <Button
+                onClick={() => window.location.reload()}
+                className="mt-6 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-semibold shadow-lg"
+              >
+                重新加载
+              </Button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -391,7 +444,23 @@ export default function Home() {
 
           {loading ? (
             <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-400 mb-4"></div>
               <p className="text-slate-600">加载中...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12 px-4">
+              <Alert className="max-w-md mx-auto bg-orange-50 border-orange-200">
+                <AlertCircle className="h-5 w-5 text-orange-600" />
+                <AlertDescription className="text-slate-700">
+                  {error}
+                </AlertDescription>
+              </Alert>
+              <Button
+                onClick={() => window.location.reload()}
+                className="mt-6 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-semibold shadow-lg"
+              >
+                重新加载
+              </Button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
