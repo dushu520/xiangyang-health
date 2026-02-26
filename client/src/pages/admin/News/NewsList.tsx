@@ -18,7 +18,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Pencil, Trash2, Plus, ArrowLeft, Upload } from "lucide-react";
 import { toast } from "sonner";
-import { api, uploadApi } from "@/lib/api";
+import { api, uploadApi, getImageUrl } from "@/lib/api";
 import { useCachedData } from "@/hooks/useCachedData";
 
 interface News {
@@ -254,7 +254,7 @@ export function NewsEdit({ params }: { params?: { id?: string } }) {
                     <div className="space-y-2">
                         <Label>封面图片</Label>
                         <div className="flex items-center gap-4">
-                            {formData.cover && <img src={formData.cover} alt="Cover" className="h-20 w-32 object-cover rounded border" />}
+                            {formData.cover && <img src={getImageUrl(formData.cover)} alt="Cover" className="h-20 w-32 object-cover rounded border" />}
                             <div className="relative">
                                 <Input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleUploadCover} accept="image/*" />
                                 <Button type="button" variant="outline"><Upload className="w-4 h-4 mr-2" /> 上传封面</Button>
