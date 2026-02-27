@@ -6,7 +6,7 @@
     },
     {
       "source": "*.html",
-      "cacheTtl": 300
+      "cacheTtl": 60
     }
   ],
   "headers": [
@@ -33,7 +33,7 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=300"
+          "value": "public, max-age=60"
         }
       ]
     }
