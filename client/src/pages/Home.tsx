@@ -17,6 +17,7 @@ import { api, getImageUrl, getApiErrorMessage } from "@/lib/api";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useCachedData } from "@/hooks/useCachedData";
 import { AvatarPlaceholder, ImagePlaceholder } from "@/components/Placeholder";
+import { UsersSectionSkeleton, ArticlesSectionSkeleton } from "@/components/Skeletons";
 
 // Interfaces based on usage
 interface User {
@@ -272,10 +273,7 @@ export default function Home() {
           </div>
 
           {loading ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-400 mb-4"></div>
-              <p className="text-gray-400">加载中...</p>
-            </div>
+            <UsersSectionSkeleton />
           ) : error ? (
             <div className="text-center py-12 px-4">
               <Alert className="max-w-md mx-auto bg-slate-800/50 border-slate-700">
@@ -334,10 +332,7 @@ export default function Home() {
           </div>
 
           {loading ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-400 mb-4"></div>
-              <p className="text-slate-600">加载中...</p>
-            </div>
+            <ArticlesSectionSkeleton />
           ) : error ? (
             <div className="text-center py-12 px-4">
               <Alert className="max-w-md mx-auto bg-orange-50 border-orange-200">
@@ -393,10 +388,7 @@ export default function Home() {
           </div>
 
           {loading ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-400 mb-4"></div>
-              <p className="text-slate-600">加载中...</p>
-            </div>
+            <ArticlesSectionSkeleton />
           ) : error ? (
             <div className="text-center py-12 px-4">
               <Alert className="max-w-md mx-auto bg-orange-50 border-orange-200">
@@ -454,10 +446,7 @@ export default function Home() {
           </div>
 
           {loading ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-400 mb-4"></div>
-              <p className="text-slate-600">加载中...</p>
-            </div>
+            <ArticlesSectionSkeleton />
           ) : error ? (
             <div className="text-center py-12 px-4">
               <Alert className="max-w-md mx-auto bg-orange-50 border-orange-200">
