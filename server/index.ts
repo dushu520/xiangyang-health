@@ -184,12 +184,6 @@ async function startServer() {
     }
   }));
 
-  // Serve frontend static files in production
-  const staticPath =
-    process.env.NODE_ENV === "production"
-      ? path.resolve(__dirname, "public")
-      : path.resolve(__dirname, "..", "dist", "public");
-
   // API Routes
   app.get("/api/version", (req, res) => res.json({ version: "2.0.0", updated: new Date().toISOString() }));
 
@@ -602,34 +596,8 @@ async function startServer() {
     } catch (e) { res.status(500).json({ error: "Failed to update profile" }); }
   });
 
-  // Frontend Routing (SPA)
-  if (process.env.NODE_ENV === "production") {
-    // 缓存带 hash 的静态资源（CSS, JS）
-    app.use(express.static(staticPath, {
-      maxAge: '1y',
-      etag: true,
-      lastModified: true,
-      setHeaders: (res, filePath) => {
-        const fileName = path.basename(filePath);
-        if (fileName.includes('.') && fileName.length > 20) {
-          // 带 hash 的文件（JS, CSS）：长期缓存
-          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-        } else if (fileName.endsWith('.html')) {
-          // HTML 文件：短期缓存 5 分钟
-          res.setHeader('Cache-Control', 'public, max-age=300, must-revalidate');
-        }
-      }
-    }));
-
-    // SPA fallback - 设置 HTML 缓存头
-    app.get("*", (_req, res) => {
-      res.sendFile(path.join(staticPath, "index.html"), {
-        headers: {
-          'Cache-Control': 'public, max-age=300, must-revalidate' // 5 分钟缓存
-        }
-      });
-    });
-  }
+  // 注意：前后端分离部署，前端静态资源由 EdgeOne Pages 托管
+  // 后端仅提供 API 服务，不服务前端静态文件
 
   const port = process.env.PORT || 3000;
   server.listen(port, () => {
