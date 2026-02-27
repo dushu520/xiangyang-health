@@ -50,7 +50,7 @@ model News {
 model Expert {
   id           Int      @id @default(autoincrement())
   name         String
-  title        String
+  title        String?
   avatar       String?
   unit         String?
   achievements String?
