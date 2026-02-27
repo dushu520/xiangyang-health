@@ -134,8 +134,12 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* 优先使用系统自带中文字体，无需下载 */
     font-family:
-      "Noto Sans SC",
+      "PingFang SC",
+      "Hiragino Sans GB",
+      "Microsoft YaHei",
+      "WenQuanYi Micro Hei",
       -apple-system,
       BlinkMacSystemFont,
       "Segoe UI",
@@ -148,7 +152,10 @@
   h5,
   h6 {
     font-family:
-      "Noto Sans SC",
+      "PingFang SC",
+      "Hiragino Sans GB",
+      "Microsoft YaHei",
+      "WenQuanYi Micro Hei",
       -apple-system,
       BlinkMacSystemFont,
       "Segoe UI",
@@ -156,7 +163,13 @@
     font-weight: 600;
   }
   .serif {
-    font-family: "Noto Serif SC", serif;
+    /* 衬线字体使用系统自带 */
+    font-family:
+      "Songti SC",
+      "SimSun",
+      "STSong",
+      "AR PL New Sung",
+      serif;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
