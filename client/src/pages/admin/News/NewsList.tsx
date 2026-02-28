@@ -167,7 +167,7 @@ export function NewsEdit({ params }: { params?: { id?: string } }) {
             [{ header: [1, 2, false] }],
             ['bold', 'italic', 'underline', 'strike', 'blockquote'],
             [{ list: 'ordered' }, { list: 'bullet' }],
-            ['link', 'image'],
+            ['link', 'image', 'video'],
             ['clean'],
         ],
     }), []);
