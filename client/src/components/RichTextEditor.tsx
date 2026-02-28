@@ -3,6 +3,115 @@ import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import { toast } from "sonner";
 
+// 视频 URL 解析函数
+const parseVideoUrl = (url: string) => {
+    if (!url) return null;
+
+    // YouTube 链接解析
+    const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+    if (youtubeMatch) {
+        return {
+            type: 'youtube' as const,
+            id: youtubeMatch[1],
+            embedUrl: `https://www.youtube.com/embed/${youtubeMatch[1]}`
+        };
+    }
+
+    // B站链接解析
+    const bilibiliMatch = url.match(/bilibili\.com\/video\/(BV[\w]+)|(av[\d]+)/);
+    if (bilibiliMatch) {
+        const bvid = bilibiliMatch[1] || bilibiliMatch[2];
+        return {
+            type: 'bilibili' as const,
+            id: bvid,
+            embedUrl: `https://player.bilibili.com/player.html?bvid=${bvid}&high_quality=1`
+        };
+    }
+
+    // MP4 直接链接或其他视频格式
+    if (url.match(/\.(mp4|webm|ogg)(\?.*)?$/i)) {
+        return {
+            type: 'mp4' as const,
+            url: url
+        };
+    }
+
+    // 默认作为 mp4 处理
+    return {
+        type: 'mp4' as const,
+        url: url
+    };
+};
+
+// 定义并注册自定义 Video Blot（在组件外部执行，避免重复注册）
+const registerVideoBlot = () => {
+    const BlockEmbed = (Quill as any).import('blots/block/embed');
+
+    class VideoBlot extends BlockEmbed {
+        static create(url: string) {
+            const node = super.create() as HTMLElement;
+
+            // 解析视频 URL
+            const video = parseVideoUrl(url);
+
+            if (video?.type === 'youtube') {
+                const iframe = document.createElement('iframe');
+                iframe.setAttribute('src', video.embedUrl);
+                iframe.setAttribute('frameborder', '0');
+                iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+                iframe.setAttribute('allowfullscreen', 'true');
+                iframe.className = 'ql-video';
+                iframe.setAttribute('data-url', url);
+                node.appendChild(iframe);
+            } else if (video?.type === 'bilibili') {
+                const iframe = document.createElement('iframe');
+                iframe.setAttribute('src', video.embedUrl);
+                iframe.setAttribute('frameborder', '0');
+                iframe.setAttribute('allowfullscreen', 'true');
+                iframe.setAttribute('scrolling', 'no');
+                iframe.setAttribute('border', '0');
+                iframe.setAttribute('framespacing', '0');
+                iframe.setAttribute('high_quality', '1');
+                iframe.setAttribute('danmaku', '0');
+                iframe.className = 'ql-video';
+                iframe.setAttribute('data-url', url);
+                node.appendChild(iframe);
+            } else {
+                // MP4 或其他视频格式
+                const videoEl = document.createElement('video');
+                videoEl.setAttribute('src', url);
+                videoEl.setAttribute('controls', 'true');
+                videoEl.className = 'ql-video';
+                videoEl.setAttribute('data-url', url);
+                const text = document.createElement('p');
+                text.textContent = '您的浏览器不支持视频播放。';
+                videoEl.appendChild(text);
+                node.appendChild(videoEl);
+            }
+
+            return node;
+        }
+
+        static value(node: HTMLElement) {
+            const video = node.querySelector('video, iframe');
+            return video?.getAttribute('data-url') || node.getAttribute('data-url') || '';
+        }
+    }
+
+    VideoBlot.blotName = 'video';
+    VideoBlot.className = 'ql-video-wrapper';
+    VideoBlot.tagName = 'div';
+
+    (Quill as any).register(VideoBlot, true);
+};
+
+// 只注册一次
+let blotRegistered = false;
+if (!blotRegistered) {
+    registerVideoBlot();
+    blotRegistered = true;
+}
+
 interface RichTextEditorProps {
     value: string;
     onChange: (value: string) => void;
@@ -34,7 +143,7 @@ export default function RichTextEditor({ value, onChange, onImageUpload, placeho
                         [{ header: [1, 2, false] }],
                         ['bold', 'italic', 'underline', 'strike'],
                         [{ list: 'ordered' }, { list: 'bullet' }],
-                        ['link', 'image'],
+                        ['link', 'image', 'video'],
                         ['clean'],
                     ],
                 },
@@ -73,6 +182,31 @@ export default function RichTextEditor({ value, onChange, onImageUpload, placeho
                     };
                 });
             }
+
+            // Handle toolbar video button
+            const toolbar = quill.getModule('toolbar') as any;
+            toolbar.addHandler('video', () => {
+                const url = prompt("请输入视频链接:\n\n支持格式：\n- MP4 直链\n- YouTube (youtube.com 或 youtu.be)\n- B站 (bilibili.com)");
+                if (!url) return;
+
+                const video = parseVideoUrl(url);
+                if (!video) {
+                    toast.error("不支持的视频链接格式");
+                    return;
+                }
+
+                const savedRange = quill.getSelection(true);
+                const insertIndex = savedRange?.index ?? quill.getLength();
+
+                // 使用自定义 blot 插入视频
+                quill.insertEmbed(insertIndex, 'video', url);
+
+                // 将光标移动到视频后
+                quill.setSelection(insertIndex + 1, 0);
+                isUpdatingRef.current = true;
+                onChangeRef.current(quill.root.innerHTML);
+                setTimeout(() => { isUpdatingRef.current = false; }, 100);
+            });
 
             // Handle Paste and Drop
             const handleImageInsert = async (file: File, insertRange?: { index: number; length: number } | null) => {
@@ -158,6 +292,20 @@ export default function RichTextEditor({ value, onChange, onImageUpload, placeho
     return (
         <div className={className}>
             <div ref={editorRef} className="h-full bg-white text-black" style={{ minHeight: '300px' }} />
+            <style>{`
+                .ql-video-wrapper {
+                    position: relative;
+                    margin: 16px 0;
+                }
+                .ql-video {
+                    width: 100%;
+                    aspect-ratio: 16 / 9;
+                    border-radius: 8px;
+                }
+                .ql-video-wrapper video.ql-video {
+                    background: #000;
+                }
+            `}</style>
         </div>
     );
 }

@@ -316,4 +316,29 @@
       max-width: 1280px; /* Standard content width */
     }
   }
+
+  /* 视频播放器样式 */
+  .ql-video-wrapper {
+    position: relative;
+    margin: 16px 0;
+    width: 100%;
+  }
+
+  .ql-video {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 8px;
+    background: #000;
+  }
+
+  /* Quill 编辑器内容的视频样式 */
+  .ql-editor .ql-video-wrapper {
+    margin: 16px 0;
+  }
+
+  .ql-editor .ql-video {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 8px;
+  }
 }
