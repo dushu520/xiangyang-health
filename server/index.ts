@@ -28,18 +28,6 @@ const upload = multer({ storage: storage });
 
 const JWT_SECRET = process.env.JWT_SECRET || "xiangyang-secret-key";
 
-// Get the base URL for constructing full URLs (for production/CDN)
-function getBaseUrl(req: any): string {
-  // In production, use APP_BASE_URL env var or construct from request
-  if (process.env.APP_BASE_URL) {
-    return process.env.APP_BASE_URL;
-  }
-  // Fallback: construct from request headers
-  const protocol = req.protocol;
-  const host = req.get('host');
-  return `${protocol}://${host}`;
-}
-
 // 图片压缩配置
 interface ImageConfig {
   width: number;
