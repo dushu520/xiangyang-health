@@ -189,7 +189,7 @@ export default function Home() {
               <div className="inline-block relative group">
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
                 <img
-                  src="/images/sunflower-icon.png"
+                  src="/images/sunflower-icon-white.png"
                   alt="向阳健康"
                   className="relative w-24 h-24 drop-shadow-2xl group-hover:scale-105 transition-transform duration-300"
                 />
