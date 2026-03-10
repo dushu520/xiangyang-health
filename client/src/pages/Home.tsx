@@ -197,7 +197,7 @@ export default function Home() {
 
               {/* Main Title */}
               <div className="space-y-4">
-                <h1 className="text-4xl md:text-6xl font-bold text-slate-900 leading-tight tracking-tight">
+                <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight tracking-tight">
                   以光为引
                   <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-600">
                     以知为翼
