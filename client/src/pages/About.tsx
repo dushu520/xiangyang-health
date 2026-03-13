@@ -132,7 +132,7 @@ export function AboutPage() {
             <div className="bg-white rounded-lg p-8 border-l-4 border-orange-600">
               <h3 className="text-xl font-bold text-slate-900 mb-3">从一个想法开始</h3>
               <p className="text-slate-600 leading-relaxed">
-              浙工大生物工程学院、食品学院、环境学院等优秀学院，培育了一批又一批从事大健康行业的校友，随着人们对健康的愈来愈关注，因此有了组建大健康校友会的想法——用科学的方法和温暖的陪伴，帮助工大人重获健康。
+              浙工大生物工程学院、食品学院、环境学院等优秀学院，培育了一批又一批从事大健康行业的校友，随着人们对健康的愈来愈关注，因此有了组建大健康校友会的想法——用科学的方法和温暖的陪伴，帮助工大人越来越健康。
               </p>
             </div>
 
