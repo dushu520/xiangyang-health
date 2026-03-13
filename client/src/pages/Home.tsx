@@ -230,7 +230,7 @@ export default function Home() {
                   </span>
                 </h1>
                 <p className="text-xl md:text-2xl text-slate-700 leading-relaxed">
-                  守护工大人在健康之路上温暖前行
+                  浙工大大健康校友会，守护工大人在健康之路上温暖前行
                 </p>
               </div>
 
