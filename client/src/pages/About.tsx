@@ -21,30 +21,30 @@ interface TeamMember {
 const teamMembers: TeamMember[] = [
   {
     id: '1',
-    name: '李明',
-    role: '创始人 & CEO',
-    bio: '健康管理专家，致力于推动大学生健康教育',
+    name: '孙培龙',
+    role: '会长',
+    bio: '浙工大龙游研究院院长',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=1'
   },
   {
     id: '2',
-    name: '王芳',
-    role: '医学顾问',
-    bio: '医学博士，专注于预防医学和健康科普',
+    name: '张华',
+    role: '执行会长',
+    bio: '工大84届生工校友，情绪健康领域专家',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=2'
   },
   {
     id: '3',
-    name: '张伟',
-    role: '技术总监',
-    bio: '资深技术工程师，打造最好的健康平台',
+    name: '葛铁汉',
+    role: '常务副会长',
+    bio: '工大校友，健康照明专家',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=3'
   },
   {
     id: '4',
-    name: '刘静',
-    role: '内容运营',
-    bio: '健康内容创作者，为用户提供专业知识',
+    name: '崔妤頔',
+    role: '秘书长',
+    bio: '工大校友，大健康领域法律专家',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=4'
   }
 ];
@@ -132,21 +132,21 @@ export function AboutPage() {
             <div className="bg-white rounded-lg p-8 border-l-4 border-orange-600">
               <h3 className="text-xl font-bold text-slate-900 mb-3">从一个想法开始</h3>
               <p className="text-slate-600 leading-relaxed">
-                2023年，我们的创始人李明在工大校园里发现了一个现象：许多学生因为压力、不规律的生活作息和缺乏健康知识而身体状况下降。这激发了他创办向阳健康的想法——用科学的方法和温暖的陪伴，帮助工大人重获健康。
+              浙工大生物工程学院、食品学院、环境学院等优秀学院，培育了一批又一批从事大健康行业的校友，随着人们对健康的愈来愈关注，因此有了组建大健康校友会的想法——用科学的方法和温暖的陪伴，帮助工大人重获健康。
               </p>
             </div>
 
             <div className="bg-white rounded-lg p-8 border-l-4 border-blue-600">
               <h3 className="text-xl font-bold text-slate-900 mb-3">汇聚专业力量</h3>
               <p className="text-slate-600 leading-relaxed">
-                我们邀请了医学专家、营养师、心理咨询师和运动教练加入团队，确保每一条建议都是科学、专业的。同时，我们建立了一个由工大学生组成的志愿者团队，他们用自己的亲身经历为其他同学提供支持和鼓励。
+                我们邀请了医学专家、营养师、心理咨询师和运动教练加入团队，确保每一条建议都是科学、专业的。同时，我们建立了一个由工大校友组成的志愿者团队，他们用自己的亲身经历为其他校友提供支持和鼓励。
               </p>
             </div>
 
             <div className="bg-white rounded-lg p-8 border-l-4 border-green-600">
               <h3 className="text-xl font-bold text-slate-900 mb-3">持续成长</h3>
               <p className="text-slate-600 leading-relaxed">
-                从最初的微信公众号到现在的完整平台，向阳健康已经服务了数千名工大人。我们收到了无数感谢信，看到了许多人的健康改善和生活质量提升。这些都激励我们继续前进，为更多人带去健康和希望。
+                从向阳健康网到健康购物平台，我们看到了许多人的健康改善和生活质量提升。这些都激励我们继续前进，为更多人带去健康和希望。
               </p>
             </div>
           </div>
@@ -198,7 +198,7 @@ export function AboutPage() {
                 href="mailto:contact@xiangyang-health.com"
                 className="text-white/80 hover:text-white transition-colors"
               >
-                contact@xiangyang-health.com
+                info-xyjk@xyjk.ren
               </a>
             </div>
 
@@ -209,10 +209,10 @@ export function AboutPage() {
               </div>
               <h3 className="font-semibold mb-2">电话</h3>
               <a
-                href="tel:+86-10-1234-5678"
+                href="tel:+86-158 6919 5869"
                 className="text-white/80 hover:text-white transition-colors"
               >
-                010-1234-5678
+                
               </a>
             </div>
 
@@ -223,8 +223,8 @@ export function AboutPage() {
               </div>
               <h3 className="font-semibold mb-2">地址</h3>
               <p className="text-white/80">
-                北京市朝阳区<br />
-                工业大学校园内
+                中国 浙江<br />
+                杭州 朝晖
               </p>
             </div>
           </div>
